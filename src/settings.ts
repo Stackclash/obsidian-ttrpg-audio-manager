@@ -40,15 +40,15 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
 
     new Setting(this.containerEl).setDesc(desc)
 
-    this.plugin.settings.audioFolders.forEach((audioFolderSetting, index) => {
+    this.plugin.settings.audioFolders.forEach((audioFolder, index) => {
       const setting = new Setting(this.containerEl)
         .addSearch(search => {
           new AudioFolderSuggester(this.app, search.inputEl)
           search
             .setPlaceholder('Enter folder path')
-            .setValue(audioFolderSetting.folderPath)
+            .setValue(audioFolder)
             .onChange(value => {
-              this.plugin.settings.audioFolders[index].folderPath = value
+              this.plugin.settings.audioFolders[index] = value
               this.plugin.saveSettings()
             })
         })
@@ -63,27 +63,6 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
             })
         })
       setting.settingEl.addClass('setting-search-input-width-100')
-
-      new Setting(this.containerEl).setName('Volume').addSlider(slider => {
-        slider
-          .setLimits(0, 100, 1)
-          .setValue(audioFolderSetting.volume * 100)
-          .setDynamicTooltip()
-          .onChange(value => {
-            this.plugin.settings.audioFolders[index].volume = value / 100
-            this.plugin.saveSettings()
-          })
-      })
-
-      new Setting(this.containerEl).setName('Loop').addToggle(toggle => {
-        toggle
-          .setValue(audioFolderSetting.loop)
-          .setTooltip('Loop audio')
-          .onChange(value => {
-            this.plugin.settings.audioFolders[index].loop = value
-            this.plugin.saveSettings()
-          })
-      })
     })
 
     new Setting(this.containerEl).addButton(button => {
@@ -91,11 +70,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         .setButtonText('Add new audio folder')
         .setCta()
         .onClick(() => {
-          this.plugin.settings.audioFolders.push({
-            folderPath: '',
-            volume: 1,
-            loop: false,
-          })
+          this.plugin.settings.audioFolders.push('')
           this.plugin.saveSettings()
           this.display()
         })

@@ -1,9 +1,3 @@
-export interface AudioFolderSettings {
-  folderPath: string
-  volume: number
-  loop: boolean
-}
-
 export interface PlaylistSettings {
   name: string
   volume: number
@@ -22,7 +16,7 @@ export interface SceneSettings {
 }
 
 export interface TtrpgAudioManagerSettings {
-  audioFolders: AudioFolderSettings[]
+  audioFolders: string[]
   playlists: PlaylistSettings[]
   scenes: SceneSettings[]
 }
