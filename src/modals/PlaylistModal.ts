@@ -1,25 +1,30 @@
 import { App, Modal, Setting, Events } from 'obsidian'
-import { PlaylistSettings } from '../types'
+import { AudioFolderSettings, PlaylistSettings } from 'src/types'
 import { AudioFileSuggester } from 'src/suggesters/AudioFileSuggester'
+import AudioPlaylist from 'src/audio/AudioPlaylist'
 
 export default class PlaylistModal extends Modal {
   settings: PlaylistSettings
   events: Events
   settingIndex: number
+  testPlaylist: AudioPlaylist
+  audioFolderSettings: AudioFolderSettings
 
-  constructor(app: App) {
+  constructor(app: App, audioFolderSettings: AudioFolderSettings) {
     super(app)
     this.events = new Events()
+    this.audioFolderSettings = audioFolderSettings
   }
 
   onOpen(): void {
-    this.setTitle('Playlist Settings')
+    this.setTitle(`${this.settings.name ? this.settings.name + ' ' : ''}Playlist Settings`)
     this.events.trigger('playlist-modal-open')
     this.contentEl.empty()
     this.display()
   }
 
   onClose(): void {
+    if (this.testPlaylist) this.testPlaylist.stop()
     this.events.trigger('playlist-modal-close', {
       settings: this.settings,
       index: this.settingIndex,
@@ -54,13 +59,41 @@ export default class PlaylistModal extends Modal {
       })
     })
 
+    new Setting(contentEl).setName('Test Playlist').addButton(button => {
+      button.setTooltip('Test Playlist').onClick(() => {
+        if (!this.testPlaylist) {
+          this.testPlaylist = new AudioPlaylist(
+            this.app,
+            this.settings.name,
+            this.settings.audioPaths,
+            this.settings.volume,
+            this.settings.loop,
+          )
+        }
+        if (this.testPlaylist.state === 'playing') {
+          this.testPlaylist.stop()
+        } else {
+          this.testPlaylist.play()
+        }
+        this.reload()
+      })
+      if (!this.testPlaylist || this.testPlaylist.state !== 'playing') {
+        button.setIcon('play')
+      } else {
+        button.setIcon('square')
+      }
+      if (this.settings.audioPaths.length === 0) {
+        button.setDisabled(true)
+      }
+    })
+
     new Setting(contentEl).setName('Audio Files').setHeading()
 
     this.settings.audioPaths.forEach((value, index) => {
       const setting = new Setting(contentEl)
         .setName(`${index + 1}.`)
         .addSearch(search => {
-          new AudioFileSuggester(this.app, search.inputEl)
+          new AudioFileSuggester(this.app, search.inputEl, this.audioFolderSettings)
           search
             .setPlaceholder('Enter Audio File Path')
             .setValue(value)

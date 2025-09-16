@@ -1,27 +1,30 @@
 import { App, Events, Modal, Setting } from 'obsidian'
 import AudioScene from 'src/audio/AudioScene'
 import { AudioFileSuggester } from 'src/suggesters/AudioFileSuggester'
-import { SceneSettings } from 'src/types'
+import { AudioFolderSettings, SceneSettings } from 'src/types'
 
-export default class PlaylistModal extends Modal {
+export default class SceneModal extends Modal {
   settings: SceneSettings
   settingIndex: number
   events: Events
   testScene: AudioScene
+  audioFolderSettings: AudioFolderSettings
 
-  constructor(app: App) {
+  constructor(app: App, audioFolderSettings: AudioFolderSettings) {
     super(app)
     this.events = new Events()
+    this.audioFolderSettings = audioFolderSettings
   }
 
   onOpen(): void {
-    this.setTitle('Scene Settings')
+    this.setTitle(`${this.settings.name ? this.settings.name + ' ' : ''}Scene Settings`)
     this.events.trigger('scene-modal-open')
     this.contentEl.empty()
     this.display()
   }
 
   onClose(): void {
+    if (this.testScene) this.testScene.stop()
     this.events.trigger('scene-modal-close', {
       settings: this.settings,
       index: this.settingIndex,
@@ -48,11 +51,14 @@ export default class PlaylistModal extends Modal {
 
     new Setting(contentEl).setDesc(desc)
 
-    new Setting(contentEl).addButton(button => {
+    new Setting(contentEl).setName('Test Scene').addButton(button => {
       button.setTooltip('Test Scene').onClick(() => {
-        if (!this.testScene) {
-          this.testScene = new AudioScene(this.app, this.settings.name, this.settings.audioSettings)
+        if (this.testScene) {
+          this.testScene.stop()
         }
+
+        this.testScene = new AudioScene(this.app, this.settings.name, this.settings.audioSettings)
+
         if (this.testScene.state === 'playing') {
           this.testScene.stop()
         } else {
@@ -73,7 +79,7 @@ export default class PlaylistModal extends Modal {
     this.settings.audioSettings.forEach((audioSetting, index) => {
       const setting = new Setting(contentEl)
         .addSearch(search => {
-          new AudioFileSuggester(this.app, search.inputEl)
+          new AudioFileSuggester(this.app, search.inputEl, this.audioFolderSettings)
           search
             .setPlaceholder('Enter Audio File Path')
             .setValue(this.settings.audioSettings[index].audioPath)

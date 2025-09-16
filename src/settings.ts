@@ -14,8 +14,8 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
   constructor(app: App, plugin: TtrpgAudioManagerPlugin) {
     super(app, plugin)
     this.plugin = plugin
-    this.playlistSettingModal = new PlaylistModal(this.app)
-    this.scenesSettingModal = new SceneModal(this.app)
+    this.playlistSettingModal = new PlaylistModal(this.app, this.plugin.settings.audioFolders)
+    this.scenesSettingModal = new SceneModal(this.app, this.plugin.settings.audioFolders)
   }
 
   display(): void {
@@ -32,11 +32,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
     new Setting(this.containerEl).setName('Audio Folders').setHeading()
 
     const desc = document.createDocumentFragment()
-    desc.append(
-      'Audio folders with their own settings. A Audio Folder settings apply ' +
-        'when playing an individual audio file from that folder. You can adjust ' +
-        'the volume and whether to loop the audio.',
-    )
+    desc.append('Audio folders which will be searched for audio files')
 
     new Setting(this.containerEl).setDesc(desc)
 

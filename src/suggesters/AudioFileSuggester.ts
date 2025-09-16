@@ -5,10 +5,12 @@ import { ALLOWED_FILE_EXTENSIONS } from 'src/constants'
 
 export class AudioFileSuggester extends AbstractInputSuggest<TFile> {
   inputEl: HTMLInputElement
+  allowedFolders: string[]
 
-  constructor(app: App, inputEl: HTMLInputElement) {
+  constructor(app: App, inputEl: HTMLInputElement, allowedFolders: string[] = []) {
     super(app, inputEl)
     this.inputEl = inputEl
+    this.allowedFolders = allowedFolders
   }
 
   getSuggestions(inputStr: string): TFile[] {
@@ -20,7 +22,10 @@ export class AudioFileSuggester extends AbstractInputSuggest<TFile> {
       if (
         file instanceof TFile &&
         ALLOWED_FILE_EXTENSIONS.includes(file.extension) &&
-        file.path.toLowerCase().contains(lowerCaseInputStr)
+        file.path.toLowerCase().contains(lowerCaseInputStr) &&
+        (this.allowedFolders
+          ? this.allowedFolders.some(folder => file.path.includes(folder))
+          : true)
       ) {
         files.push(file)
       }
