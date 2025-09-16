@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "f224f3783ed988ca",
+        "id": "f7e5837b3904288d",
         "type": "tabs",
         "children": [
           {
-            "id": "2518fb4ae831c4ca",
+            "id": "53dd9765e670b194",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -136,12 +136,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "media/Golden - Music.mp3",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of Golden - Music"
             }
           }
         ]
@@ -153,6 +154,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Create new base": false,
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
       "canvas:Create new canvas": false,
@@ -161,8 +163,16 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "2518fb4ae831c4ca",
+  "active": "8dcfab835d633eab",
   "lastOpenFiles": [
+    "media/Golden - Youtube.mp3",
+    "media/Golden - Vocals.mp3",
+    "media/Golden - Music.mp3",
+    "media",
+    "Audio/Audio Folder 1/Horror Tones D.mp3",
+    "Audio/Audio Folder 1/Angered Spirit.mp3",
+    "Audio/Audio Folder 1",
+    "Audio",
     "Welcome.md",
     "New folder"
   ]

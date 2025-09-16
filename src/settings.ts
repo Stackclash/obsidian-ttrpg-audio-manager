@@ -50,7 +50,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.plugin.settings.audioFolders.splice(index, 1)
@@ -111,7 +111,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.plugin.settings.playlists.splice(index, 1)
@@ -177,7 +177,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.plugin.settings.scenes.splice(index, 1)

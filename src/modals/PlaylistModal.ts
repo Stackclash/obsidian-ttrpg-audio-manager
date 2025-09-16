@@ -121,7 +121,7 @@ export default class PlaylistModal extends Modal {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.settings.audioPaths.splice(index, 1)

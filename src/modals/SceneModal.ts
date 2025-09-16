@@ -98,7 +98,7 @@ export default class SceneModal extends Modal {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.settings.audioSettings.splice(index, 1)
