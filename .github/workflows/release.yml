@@ -27,7 +27,7 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created }}
     needs: release-please
     steps:  
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -47,7 +47,7 @@ jobs:
         run: |
           branch=$(echo '${{ needs.release-please.outputs.pr }}' | jq -r '.headBranchName')
           echo "branch_name=$branch" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ steps.branch.outputs.branch_name }}
           fetch-depth: 0
