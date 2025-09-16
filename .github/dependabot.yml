@@ -1,22 +1,29 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/.github/workflows"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    labels:
-      - "dependencies"
-    assignees:
-      - "Stackclash"
   - package-ecosystem: "npm"
     directory: "/"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "chore(deps)"
-    labels:
-      - "dependencies"
     assignees:
       - "Stackclash"
+    schedule:
+      interval: "weekly"
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+        applies-to: "version-updates"
+        update-types:
+          - "minor"
+          - "patch"
+      production-major-dependencies:
+        dependency-type: "production"
+        applies-to: "version-updates"
+        update-types:
+          - "major"
+      development-dependencies:
+        dependency-type: "development"
+        applies-to: "version-updates"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    assignees:
+      - "Stackclash"
+    schedule:
+      interval: "weekly"
