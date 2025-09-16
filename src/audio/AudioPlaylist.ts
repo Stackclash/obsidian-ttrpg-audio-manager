@@ -1,9 +1,10 @@
 import { App } from 'obsidian'
 import AudioFile from './AudioFile'
+import { PlaylistSettings } from '../types'
 
 export default class AudioPlaylist {
   name: string = ''
-  volume: number = 0.5
+  volume: number = 0
   loop: boolean = false
   audioFiles: AudioFile[] = []
 
@@ -52,5 +53,14 @@ export default class AudioPlaylist {
     this.audioFiles.forEach(audioFile => {
       if (audioFile.state === 'playing') audioFile.stop()
     })
+  }
+
+  toJson(): PlaylistSettings {
+    return {
+      name: this.name,
+      volume: this.volume,
+      loop: this.loop,
+      audioPaths: this.audioFiles.map(f => f.path),
+    }
   }
 }

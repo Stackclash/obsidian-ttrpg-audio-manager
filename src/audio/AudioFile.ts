@@ -2,6 +2,7 @@ import { App, TFile } from 'obsidian'
 
 export default class AudioFile {
   tfile: TFile
+  path: string
   state: 'playing' | 'paused' | 'stopped' = 'stopped'
   audioEl: HTMLAudioElement
 
@@ -19,6 +20,7 @@ export default class AudioFile {
     audioElement.loop = loop
 
     this.audioEl = audioElement
+    this.path = audioPath
   }
 
   set volume(volume: number) {

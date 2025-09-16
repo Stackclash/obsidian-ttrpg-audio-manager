@@ -1,5 +1,5 @@
 import AudioFile from './AudioFile'
-import { SceneAudioSettings } from '../types'
+import { SceneAudioSettings, SceneSettings } from '../types'
 import { App } from 'obsidian'
 
 export default class AudioScene {
@@ -39,6 +39,16 @@ export default class AudioScene {
       this.audioFiles.forEach(audioFile => {
         audioFile.stop()
       })
+    }
+  }
+
+  toJson(): SceneSettings {
+    return {
+      name: this.name,
+      audioSettings: this.audioFiles.map(f => ({
+        audioPath: f.path,
+        volume: f.volume,
+      })),
     }
   }
 }

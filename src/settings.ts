@@ -128,7 +128,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         .onClick(() => {
           this.plugin.settings.playlists.push({
             name: '',
-            volume: 0.5,
+            volume: 0,
             loop: false,
             audioPaths: [],
           })
