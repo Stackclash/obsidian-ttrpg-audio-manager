@@ -1,19 +1,18 @@
 import { App } from 'obsidian'
 import AudioFile from './AudioFile'
 import { PlaylistSettings } from '../types'
-
 export default class AudioPlaylist {
   app: App
   name: string = ''
-  volume: number = 0
   loop: boolean = false
+  private rawVolume: number = 0
   audioFiles: AudioFile[] = []
 
   constructor(app: App, name: string, audioPaths: string[], volume: number, loop: boolean) {
     this.app = app
     this.name = name
-    this.volume = volume
     this.loop = loop
+    this.rawVolume = volume
     audioPaths.forEach(path => {
       this.audioFiles.push(new AudioFile(app, path, volume))
     })
@@ -21,14 +20,27 @@ export default class AudioPlaylist {
 
   // Maybe also pass back what file currently on
   get state(): string {
+    let state = 'stopped'
+
     this.audioFiles.forEach(audioFile => {
-      if (audioFile.state !== 'stopped') return audioFile.state
+      if (audioFile.state !== 'stopped') state = audioFile.state
     })
 
-    return 'stopped'
+    return state
   }
 
-  getCurrentAudio(): number | null {
+  set volume(volume: number) {
+    this.audioFiles.forEach(audioFile => {
+      audioFile.volume = volume
+    })
+    this.rawVolume = volume
+  }
+
+  get volume(): number {
+    return this.rawVolume
+  }
+
+  getCurrentAudioIndex(): number | null {
     this.audioFiles.forEach((audioFile, index) => {
       if (audioFile.state !== 'stopped') return index
     })
@@ -38,10 +50,9 @@ export default class AudioPlaylist {
 
   async play(): Promise<void> {
     if (this.state === 'paused') {
-      const audioIndex = this.getCurrentAudio()
+      const audioIndex = this.getCurrentAudioIndex()
       if (audioIndex) await this.audioFiles[audioIndex].play()
     } else if (this.state === 'stopped') {
-      console.log(this.audioFiles)
       await this.audioFiles[0].play()
     }
   }
@@ -59,7 +70,7 @@ export default class AudioPlaylist {
   }
 
   addAudioFile(path: string): void {
-    this.audioFiles.push(new AudioFile(this.app, path, this.volume, this.loop))
+    this.audioFiles.push(new AudioFile(this.app, path, this.rawVolume, this.loop))
   }
 
   removeAudioFileByPath(path: string): void {

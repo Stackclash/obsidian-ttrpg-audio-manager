@@ -1,7 +1,6 @@
 import { App } from 'obsidian'
 import { join as pathJoin } from 'path'
-import fs from 'fs'
-import { fileExists } from 'src/utils/fileUtils'
+import { fileExists, getFullPath, readFile } from 'src/utils/fileUtils'
 
 export default class AudioFile {
   app: App
@@ -25,7 +24,7 @@ export default class AudioFile {
 
   set path(path: string) {
     this.relativePath = path
-    this.fullPath = pathJoin(this.app.vault.getRoot().path, path)
+    this.fullPath = getFullPath(this.app, path)
     this.loadAudio()
   }
 
@@ -67,7 +66,8 @@ export default class AudioFile {
 
   private loadAudio(): void {
     if (!fileExists(this.app, this.relativePath)) return
-    const audioData = fs.readFileSync(this.fullPath)
+    const audioData = readFile(this.app, this.fullPath)
+    if (!audioData) return
     const base64Data = audioData.toString('base64')
     this.audioEl.src = `data:audio/mpeg;base64,${base64Data}`
     this.audioEl.load()

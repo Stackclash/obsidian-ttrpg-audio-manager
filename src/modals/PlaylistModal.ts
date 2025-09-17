@@ -69,15 +69,19 @@ export default class PlaylistModal extends Modal {
 
     new Setting(contentEl).setName('Test Playlist').addButton(button => {
       button.setTooltip('Test Playlist').onClick(async () => {
-        if (this.currentPlaylist.state === 'playing') {
-          this.currentPlaylist.stop()
-        } else {
-          await this.currentPlaylist.play()
-        }
-        this.reload()
+        Promise.resolve()
+          .then(async () => {
+            if (this.currentPlaylist.state === 'playing') {
+              this.currentPlaylist.stop()
+            } else {
+              await this.currentPlaylist.play()
+            }
+
+            return Promise.resolve()
+          })
+          .then(() => this.reload())
       })
 
-      console.log(this.currentPlaylist.state)
       if (this.currentPlaylist.state !== 'playing') {
         button.setIcon('play')
       } else {
@@ -90,7 +94,6 @@ export default class PlaylistModal extends Modal {
 
     new Setting(contentEl).setName('Audio Files').setHeading()
 
-    console.log(this.currentPlaylist.audioFiles.length)
     this.currentPlaylist.audioFiles.forEach((audioFile, index) => {
       const setting = new Setting(contentEl)
         .setName(`${index + 1}.`)
