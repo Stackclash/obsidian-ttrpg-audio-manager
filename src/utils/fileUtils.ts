@@ -1,5 +1,5 @@
 import { App, FileSystemAdapter } from 'obsidian'
-import { join as pathJoin } from 'path'
+import { join as pathJoin, isAbsolute } from 'path'
 import fs from 'fs'
 
 export const getVaultPath = (app: App): string => {
@@ -10,18 +10,24 @@ export const getVaultPath = (app: App): string => {
   return ''
 }
 
-export const getFullPath = (app: App, relativePath: string): string => {
-  return pathJoin(getVaultPath(app), relativePath)
+export const getFullPath = (app: App, path: string): string => {
+  if (isAbsolute(path)) {
+    return path
+  } else {
+    return pathJoin(getVaultPath(app), path)
+  }
 }
 
 export const fileExists = (app: App, path: string): boolean => {
   try {
     const adapter = app.vault.adapter
 
-    if (fs.existsSync(pathJoin(path))) {
-      return fs.statSync(path).isFile()
-    } else if (adapter instanceof FileSystemAdapter) {
-      return fs.statSync(pathJoin(adapter.getBasePath(), path)).isFile()
+    if (fs.existsSync(path) && fs.statSync(path).isFile()) {
+      return true
+    }
+
+    if (adapter instanceof FileSystemAdapter) {
+      return fs.statSync(getFullPath(app, path)).isFile()
     }
 
     return false

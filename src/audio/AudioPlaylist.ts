@@ -18,7 +18,6 @@ export default class AudioPlaylist {
     })
   }
 
-  // Maybe also pass back what file currently on
   get state(): string {
     let state = 'stopped'
 
@@ -40,18 +39,17 @@ export default class AudioPlaylist {
     return this.rawVolume
   }
 
-  getCurrentAudioIndex(): number | null {
+  getCurrentAudioIndex(): number {
     this.audioFiles.forEach((audioFile, index) => {
       if (audioFile.state !== 'stopped') return index
     })
 
-    return null
+    return 0
   }
 
   async play(): Promise<void> {
     if (this.state === 'paused') {
-      const audioIndex = this.getCurrentAudioIndex()
-      if (audioIndex) await this.audioFiles[audioIndex].play()
+      await this.audioFiles[this.getCurrentAudioIndex()].play()
     } else if (this.state === 'stopped') {
       await this.audioFiles[0].play()
     }
