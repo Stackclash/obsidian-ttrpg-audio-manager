@@ -4,35 +4,43 @@ import { AudioFileSuggester } from 'src/suggesters/AudioFileSuggester'
 import AudioPlaylist from 'src/audio/AudioPlaylist'
 
 export default class PlaylistModal extends Modal {
-  settings: PlaylistSettings
   events: Events
   settingIndex: number
-  testPlaylist: AudioPlaylist
+  currentPlaylist: AudioPlaylist
   audioFolderSettings: AudioFolderSettings
 
   constructor(app: App, audioFolderSettings: AudioFolderSettings) {
     super(app)
     this.events = new Events()
     this.audioFolderSettings = audioFolderSettings
+    this.currentPlaylist = new AudioPlaylist(app, '', [], 0, false)
   }
 
   onOpen(): void {
-    this.setTitle(`${this.settings.name ? this.settings.name + ' ' : ''}Playlist Settings`)
+    this.setTitle(
+      `${this.currentPlaylist.name ? this.currentPlaylist.name + ' ' : ''}Playlist Settings`,
+    )
     this.events.trigger('playlist-modal-open')
     this.contentEl.empty()
     this.display()
   }
 
   onClose(): void {
-    if (this.testPlaylist) this.testPlaylist.stop()
+    if (this.currentPlaylist) this.currentPlaylist.stop()
     this.events.trigger('playlist-modal-close', {
-      settings: this.settings,
+      settings: this.currentPlaylist.toJson(),
       index: this.settingIndex,
     })
   }
 
   loadSettings(settings: PlaylistSettings, index: number): void {
-    this.settings = settings
+    this.currentPlaylist = new AudioPlaylist(
+      this.app,
+      settings.name,
+      settings.audioPaths,
+      settings.volume,
+      settings.loop,
+    )
     this.settingIndex = index
   }
 
@@ -47,74 +55,68 @@ export default class PlaylistModal extends Modal {
       slider
         .setLimits(0, 100, 1)
         .setDynamicTooltip()
-        .setValue(this.settings.volume * 100)
+        .setValue(this.currentPlaylist.volume * 100)
         .onChange(value => {
-          this.settings.volume = value / 100
+          this.currentPlaylist.volume = value / 100
         })
     })
 
     new Setting(contentEl).setName('Loop Playlist').addToggle(toggle => {
-      toggle.setValue(this.settings.loop).onChange(value => {
-        this.settings.loop = value
+      toggle.setValue(this.currentPlaylist.loop).onChange(value => {
+        this.currentPlaylist.loop = value
       })
     })
 
     new Setting(contentEl).setName('Test Playlist').addButton(button => {
-      button.setTooltip('Test Playlist').onClick(() => {
-        if (!this.testPlaylist) {
-          this.testPlaylist = new AudioPlaylist(
-            this.app,
-            this.settings.name,
-            this.settings.audioPaths,
-            this.settings.volume,
-            this.settings.loop,
-          )
-        }
-        if (this.testPlaylist.state === 'playing') {
-          this.testPlaylist.stop()
+      button.setTooltip('Test Playlist').onClick(async () => {
+        if (this.currentPlaylist.state === 'playing') {
+          this.currentPlaylist.stop()
         } else {
-          this.testPlaylist.play()
+          await this.currentPlaylist.play()
         }
         this.reload()
       })
-      if (!this.testPlaylist || this.testPlaylist.state !== 'playing') {
+
+      console.log(this.currentPlaylist.state)
+      if (this.currentPlaylist.state !== 'playing') {
         button.setIcon('play')
       } else {
         button.setIcon('square')
       }
-      if (this.settings.audioPaths.length === 0) {
+      if (this.currentPlaylist.audioFiles.length === 0) {
         button.setDisabled(true)
       }
     })
 
     new Setting(contentEl).setName('Audio Files').setHeading()
 
-    this.settings.audioPaths.forEach((value, index) => {
+    console.log(this.currentPlaylist.audioFiles.length)
+    this.currentPlaylist.audioFiles.forEach((audioFile, index) => {
       const setting = new Setting(contentEl)
         .setName(`${index + 1}.`)
         .addSearch(search => {
           new AudioFileSuggester(this.app, search.inputEl, this.audioFolderSettings)
           search
             .setPlaceholder('Enter Audio File Path')
-            .setValue(value)
+            .setValue(audioFile.path)
             .onChange(value => {
-              this.settings.audioPaths[index] = value
+              audioFile.path = value
             })
         })
         .addExtraButton(button => {
           button.setIcon('chevron-up').onClick(() => {
             if (index - 1 >= 0) {
-              const item = this.settings.audioPaths.splice(index, 1)[0]
-              this.settings.audioPaths.splice(index - 1, 0, item)
+              const item = this.currentPlaylist.audioFiles.splice(index, 1)[0]
+              this.currentPlaylist.audioFiles.splice(index - 1, 0, item)
               this.reload()
             }
           })
         })
         .addExtraButton(button => {
           button.setIcon('chevron-down').onClick(() => {
-            if (index + 1 < this.settings.audioPaths.length) {
-              const item = this.settings.audioPaths.splice(index, 1)[0]
-              this.settings.audioPaths.splice(index + 1, 0, item)
+            if (index + 1 < this.currentPlaylist.audioFiles.length) {
+              const item = this.currentPlaylist.audioFiles.splice(index, 1)[0]
+              this.currentPlaylist.audioFiles.splice(index + 1, 0, item)
               this.reload()
             }
           })
@@ -124,7 +126,7 @@ export default class PlaylistModal extends Modal {
             .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
-              this.settings.audioPaths.splice(index, 1)
+              this.currentPlaylist.audioFiles.splice(index, 1)
               this.reload()
             })
         })
@@ -132,7 +134,7 @@ export default class PlaylistModal extends Modal {
     })
     new Setting(contentEl).addButton(button => {
       button.setButtonText('Add Audio File').onClick(() => {
-        this.settings.audioPaths.push('')
+        this.currentPlaylist.addAudioFile('')
         this.reload()
       })
     })

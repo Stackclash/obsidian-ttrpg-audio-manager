@@ -1,33 +1,36 @@
-import { App, TFile } from 'obsidian'
+import { App } from 'obsidian'
+import { join as pathJoin } from 'path'
+import fs from 'fs'
+import { fileExists } from 'src/utils/fileUtils'
 
 export default class AudioFile {
   app: App
-  tfile: TFile | null = null
+  private relativePath: string = ''
+  private fullPath: string = ''
   state: 'playing' | 'paused' | 'stopped' = 'stopped'
   audioEl: HTMLAudioElement
 
   constructor(app: App, audioPath: string, volume: number = 0.5, loop: boolean = false) {
-    const tfile = app.vault.getFileByPath(audioPath)
-    if (tfile) {
-      this.tfile = tfile
-    }
-    const audioElement = document.createElement('audio')
-    audioElement.src = audioPath
+    const audioElement = new Audio()
     audioElement.volume = volume
     audioElement.loop = loop
 
     this.app = app
     this.audioEl = audioElement
-    this.path = audioPath
+    this.relativePath = audioPath
+    this.fullPath = pathJoin(app.vault.getRoot().path, audioPath)
+
+    this.loadAudio()
   }
 
   set path(path: string) {
-    this.audioEl.src = path
-    this.tfile = this.app.vault.getFileByPath(path)
+    this.relativePath = path
+    this.fullPath = pathJoin(this.app.vault.getRoot().path, path)
+    this.loadAudio()
   }
 
   get path(): string {
-    return this.audioEl.src
+    return this.relativePath
   }
 
   set volume(volume: number) {
@@ -60,5 +63,13 @@ export default class AudioFile {
     this.audioEl.pause()
     this.audioEl.currentTime = 0
     this.state = 'stopped'
+  }
+
+  private loadAudio(): void {
+    if (!fileExists(this.app, this.relativePath)) return
+    const audioData = fs.readFileSync(this.fullPath)
+    const base64Data = audioData.toString('base64')
+    this.audioEl.src = `data:audio/mpeg;base64,${base64Data}`
+    this.audioEl.load()
   }
 }

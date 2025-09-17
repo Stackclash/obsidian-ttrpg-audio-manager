@@ -36,13 +36,13 @@ export default class AudioPlaylist {
     return null
   }
 
-  play(): void {
+  async play(): Promise<void> {
     if (this.state === 'paused') {
       const audioIndex = this.getCurrentAudio()
-      if (audioIndex) this.audioFiles[audioIndex].play()
+      if (audioIndex) await this.audioFiles[audioIndex].play()
     } else if (this.state === 'stopped') {
-      this.audioFiles[0].play()
       console.log(this.audioFiles)
+      await this.audioFiles[0].play()
     }
   }
 
