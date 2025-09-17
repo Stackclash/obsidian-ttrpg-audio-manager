@@ -3,10 +3,12 @@ import { SceneAudioSettings, SceneSettings } from '../types'
 import { App } from 'obsidian'
 
 export default class AudioScene {
+  app: App
   name: string = ''
   audioFiles: AudioFile[] = []
 
   constructor(app: App, name: string, audioSettings: SceneAudioSettings[]) {
+    this.app = app
     this.name = name
     audioSettings.forEach(setting => {
       this.audioFiles.push(new AudioFile(app, setting.audioPath, setting.volume, true))
@@ -39,6 +41,20 @@ export default class AudioScene {
       this.audioFiles.forEach(audioFile => {
         audioFile.stop()
       })
+    }
+  }
+
+  addAudioFile(path: string, volume: number): void {
+    this.audioFiles.push(new AudioFile(this.app, path, volume))
+  }
+
+  removeAudioFileByPath(path: string): void {
+    this.audioFiles = this.audioFiles.filter(audioFile => audioFile.path !== path)
+  }
+
+  removeAudioFileByIndex(index: number): void {
+    if (index >= 0 && index < this.audioFiles.length) {
+      this.audioFiles.splice(index, 1)
     }
   }
 

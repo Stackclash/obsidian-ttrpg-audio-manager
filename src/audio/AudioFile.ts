@@ -1,8 +1,8 @@
 import { App, TFile } from 'obsidian'
 
 export default class AudioFile {
-  tfile: TFile
-  path: string
+  app: App
+  tfile: TFile | null = null
   state: 'playing' | 'paused' | 'stopped' = 'stopped'
   audioEl: HTMLAudioElement
 
@@ -10,17 +10,24 @@ export default class AudioFile {
     const tfile = app.vault.getFileByPath(audioPath)
     if (tfile) {
       this.tfile = tfile
-    } else {
-      throw new Error('file does not exist')
     }
-
     const audioElement = document.createElement('audio')
-    audioElement.src = this.tfile.vault.getResourcePath(this.tfile)
+    audioElement.src = audioPath
     audioElement.volume = volume
     audioElement.loop = loop
 
+    this.app = app
     this.audioEl = audioElement
     this.path = audioPath
+  }
+
+  set path(path: string) {
+    this.audioEl.src = path
+    this.tfile = this.app.vault.getFileByPath(path)
+  }
+
+  get path(): string {
+    return this.audioEl.src
   }
 
   set volume(volume: number) {
@@ -39,8 +46,8 @@ export default class AudioFile {
     return this.audioEl.loop
   }
 
-  play(): void {
-    this.audioEl.play()
+  async play(): Promise<void> {
+    await this.audioEl.play()
     this.state = 'playing'
   }
 

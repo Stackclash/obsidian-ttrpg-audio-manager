@@ -3,12 +3,14 @@ import AudioFile from './AudioFile'
 import { PlaylistSettings } from '../types'
 
 export default class AudioPlaylist {
+  app: App
   name: string = ''
   volume: number = 0
   loop: boolean = false
   audioFiles: AudioFile[] = []
 
   constructor(app: App, name: string, audioPaths: string[], volume: number, loop: boolean) {
+    this.app = app
     this.name = name
     this.volume = volume
     this.loop = loop
@@ -40,6 +42,7 @@ export default class AudioPlaylist {
       if (audioIndex) this.audioFiles[audioIndex].play()
     } else if (this.state === 'stopped') {
       this.audioFiles[0].play()
+      console.log(this.audioFiles)
     }
   }
 
@@ -53,6 +56,20 @@ export default class AudioPlaylist {
     this.audioFiles.forEach(audioFile => {
       if (audioFile.state === 'playing') audioFile.stop()
     })
+  }
+
+  addAudioFile(path: string): void {
+    this.audioFiles.push(new AudioFile(this.app, path, this.volume, this.loop))
+  }
+
+  removeAudioFileByPath(path: string): void {
+    this.audioFiles = this.audioFiles.filter(audioFile => audioFile.path !== path)
+  }
+
+  removeAudioFileByIndex(index: number): void {
+    if (index >= 0 && index < this.audioFiles.length) {
+      this.audioFiles.splice(index, 1)
+    }
   }
 
   toJson(): PlaylistSettings {
