@@ -21,8 +21,7 @@ export default class PlaylistModal extends Modal {
       `${this.currentPlaylist.name ? this.currentPlaylist.name + ' ' : ''}Playlist Settings`,
     )
     this.events.trigger('playlist-modal-open')
-    this.contentEl.empty()
-    this.display()
+    this.reload()
   }
 
   onClose(): void {

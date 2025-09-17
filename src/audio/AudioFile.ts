@@ -49,19 +49,19 @@ export default class AudioFile {
   }
 
   async play(): Promise<void> {
-    await this.audioEl.play()
     this.state = 'playing'
+    await this.audioEl.play()
   }
 
   pause(): void {
-    this.audioEl.pause()
     this.state = 'paused'
+    this.audioEl.pause()
   }
 
   stop(): void {
+    this.state = 'stopped'
     this.audioEl.pause()
     this.audioEl.currentTime = 0
-    this.state = 'stopped'
   }
 
   private loadAudio(): void {

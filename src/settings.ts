@@ -146,6 +146,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
     this.scenesSettingModal.events.on('scene-modal-close', data => {
       this.plugin.settings.scenes[data.index] = data.settings
       this.plugin.saveSettings()
+      this.reload()
     })
 
     new Setting(this.containerEl).setName('Scenes').setHeading()

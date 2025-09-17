@@ -16,14 +16,15 @@ export default class AudioScene {
   }
 
   get state(): string {
+    if (this.audioFiles.length === 0) return 'stopped'
     const state = this.audioFiles[0].state
     return this.audioFiles.every(audioFile => state === audioFile.state) ? state : ''
   }
 
-  play(): void {
+  async play(): Promise<void> {
     if (this.state !== 'playing') {
-      this.audioFiles.forEach(audioFile => {
-        audioFile.play()
+      this.audioFiles.forEach(async audioFile => {
+        await audioFile.play()
       })
     }
   }
