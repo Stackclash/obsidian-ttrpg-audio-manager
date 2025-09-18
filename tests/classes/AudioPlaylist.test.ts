@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AudioPlaylist from '../../src/audio/AudioPlaylist'
+import AudioPlaylist from '../../src/classes/AudioPlaylist'
 import { App } from 'obsidian'
 import { PlaylistSettings } from '../../src/types'
 
-jest.mock('../../src/audio/AudioFile', () => {
+jest.mock('../../src/classes/AudioFile', () => {
   return jest.fn().mockImplementation((app: App, path: string) => ({
     path,
     play: jest.fn(),

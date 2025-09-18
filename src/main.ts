@@ -8,9 +8,6 @@ export default class TtrpgAudioManagerPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings()
-    if (!this.settings) {
-      this.settings = { ...DEFAULT_SETTINGS }
-    }
     this.addSettingTab(new TtrpgAudioManagerSettingTab(this.app, this))
   }
 

@@ -1,4 +1,4 @@
-import AudioFile from '../../src/audio/AudioFile'
+import AudioFile from '../../src/classes/AudioFile'
 import { App } from 'obsidian'
 import { fileExists, getFullPath, readFile } from '../../src/utils/fileUtils'
 

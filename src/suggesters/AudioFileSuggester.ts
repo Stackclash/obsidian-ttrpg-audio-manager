@@ -1,7 +1,7 @@
 // Credits go to Liam's Periodic Notes Plugin: https://github.com/liamcain/obsidian-periodic-notes
 
 import { AbstractInputSuggest, App, TAbstractFile, TFile } from 'obsidian'
-import { ALLOWED_FILE_EXTENSIONS } from 'src/constants'
+import { ALLOWED_FILE_EXTENSIONS } from '../constants'
 
 export class AudioFileSuggester extends AbstractInputSuggest<TFile> {
   inputEl: HTMLInputElement

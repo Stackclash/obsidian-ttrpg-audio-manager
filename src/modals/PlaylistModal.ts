@@ -1,7 +1,7 @@
 import { App, Modal, Setting, Events } from 'obsidian'
-import { AudioFolderSettings, PlaylistSettings } from 'src/types'
-import { AudioFileSuggester } from 'src/suggesters/AudioFileSuggester'
-import AudioPlaylist from 'src/audio/AudioPlaylist'
+import { AudioFolderSettings, PlaylistSettings } from '../types'
+import { AudioFileSuggester } from '../suggesters/AudioFileSuggester'
+import AudioPlaylist from '../classes/AudioPlaylist'
 
 export default class PlaylistModal extends Modal {
   events: Events

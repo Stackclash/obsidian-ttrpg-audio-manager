@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AudioScene from '../../src/audio/AudioScene'
-import AudioFile from '../../src/audio/AudioFile'
+import AudioScene from '../../src/classes/AudioScene'
+import AudioFile from '../../src/classes/AudioFile'
 import { App } from 'obsidian'
 import { SceneAudioSettings } from '../../src/types'
 
-jest.mock('../../src/audio/AudioFile')
+jest.mock('../../src/classes/AudioFile')
 const mockAudioFile = AudioFile as jest.MockedClass<typeof AudioFile>
 
 const mockApp = {} as App

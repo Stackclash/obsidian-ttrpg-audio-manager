@@ -1,7 +1,7 @@
 import { App, Events, Modal, Setting } from 'obsidian'
-import AudioScene from 'src/audio/AudioScene'
-import { AudioFileSuggester } from 'src/suggesters/AudioFileSuggester'
-import { AudioFolderSettings, SceneSettings } from 'src/types'
+import AudioScene from '../classes/AudioScene'
+import { AudioFileSuggester } from '../suggesters/AudioFileSuggester'
+import { AudioFolderSettings, SceneSettings } from '../types'
 
 export default class SceneModal extends Modal {
   settingIndex: number
