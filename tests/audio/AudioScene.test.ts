@@ -118,7 +118,7 @@ describe('AudioScene', () => {
       expect(stopMock1).toHaveBeenCalled()
     })
 
-    it('should not call stop if not playing', () => {
+    it('should call stop on all audio files if paused', () => {
       ;(audioScene.audioFiles[0] as any).state = 'paused'
       ;(audioScene.audioFiles[1] as any).state = 'paused'
       const stopMock0 = jest.fn()
@@ -127,8 +127,8 @@ describe('AudioScene', () => {
       audioScene.audioFiles[1].stop = stopMock1
 
       audioScene.stop()
-      expect(stopMock0).not.toHaveBeenCalled()
-      expect(stopMock1).not.toHaveBeenCalled()
+      expect(stopMock0).toHaveBeenCalled()
+      expect(stopMock1).toHaveBeenCalled()
     })
   })
 
