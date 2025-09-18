@@ -28,11 +28,11 @@ export default class AudioScene {
   }
 
   pause(): void {
-    if (this.state === 'playing') {
-      this.audioFiles.forEach(audioFile => {
+    this.audioFiles.forEach(audioFile => {
+      if (audioFile.state === 'playing') {
         audioFile.pause()
-      })
-    }
+      }
+    })
   }
 
   stop(): void {
