@@ -40,11 +40,13 @@ export default class AudioPlaylist {
   }
 
   getCurrentAudioIndex(): number {
-    this.audioFiles.forEach((audioFile, index) => {
-      if (audioFile.state !== 'stopped') return index
+    let index = 0
+
+    this.audioFiles.forEach((audioFile, idx) => {
+      if (audioFile.state !== 'stopped') index = idx
     })
 
-    return 0
+    return index
   }
 
   async play(): Promise<void> {

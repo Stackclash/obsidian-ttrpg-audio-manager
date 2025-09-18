@@ -1,3 +1,5 @@
+import { PluginManifest } from 'obsidian'
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export class App {
   vault: Vault
@@ -22,5 +24,15 @@ export class TFile {
 
   constructor() {
     this.vault = new Vault()
+  }
+}
+
+export class Plugin {
+  app: App
+  manifest: PluginManifest
+
+  constructor(app: App, manifest: PluginManifest) {
+    this.app = app
+    this.manifest = manifest
   }
 }

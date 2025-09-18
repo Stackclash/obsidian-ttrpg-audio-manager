@@ -50,6 +50,7 @@ export default class AudioScene {
   }
 
   removeAudioFileByPath(path: string): void {
+    // console.log(this.audioFiles.map(f => f.path))
     this.audioFiles = this.audioFiles.filter(audioFile => audioFile.path !== path)
   }
 

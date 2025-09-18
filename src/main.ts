@@ -8,15 +8,17 @@ export default class TtrpgAudioManagerPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings()
-
-    // This adds a settings tab so the user can configure various aspects of the plugin
+    if (!this.settings) {
+      this.settings = { ...DEFAULT_SETTINGS }
+    }
     this.addSettingTab(new TtrpgAudioManagerSettingTab(this.app, this))
   }
 
   onunload() {}
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
+    const loaded = await this.loadData()
+    this.settings = { ...DEFAULT_SETTINGS, ...loaded }
   }
 
   async saveSettings() {

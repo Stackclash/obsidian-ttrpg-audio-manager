@@ -1,12 +1,13 @@
 import { App } from 'obsidian'
-import { join as pathJoin } from 'path'
-import { fileExists, getFullPath, readFile } from 'src/utils/fileUtils'
+import { fileExists, getFullPath, readFile } from '../utils/fileUtils'
+
+type AudioState = 'playing' | 'paused' | 'stopped'
 
 export default class AudioFile {
   app: App
   private relativePath: string = ''
   private fullPath: string = ''
-  state: 'playing' | 'paused' | 'stopped' = 'stopped'
+  _state: AudioState = 'stopped'
   audioEl: HTMLAudioElement
 
   constructor(app: App, audioPath: string, volume: number = 0.5, loop: boolean = false) {
@@ -17,9 +18,13 @@ export default class AudioFile {
     this.app = app
     this.audioEl = audioElement
     this.relativePath = audioPath
-    this.fullPath = pathJoin(app.vault.getRoot().path, audioPath)
+    this.fullPath = getFullPath(this.app, audioPath)
 
     this.loadAudio()
+  }
+
+  get state(): AudioState {
+    return this._state
   }
 
   set path(path: string) {
@@ -49,17 +54,17 @@ export default class AudioFile {
   }
 
   async play(): Promise<void> {
-    this.state = 'playing'
+    this._state = 'playing'
     await this.audioEl.play()
   }
 
   pause(): void {
-    this.state = 'paused'
+    this._state = 'paused'
     this.audioEl.pause()
   }
 
   stop(): void {
-    this.state = 'stopped'
+    this._state = 'stopped'
     this.audioEl.pause()
     this.audioEl.currentTime = 0
   }
