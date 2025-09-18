@@ -1,33 +1,37 @@
 import { App, Events, Modal, Setting } from 'obsidian'
+import AudioScene from 'src/audio/AudioScene'
 import { AudioFileSuggester } from 'src/suggesters/AudioFileSuggester'
-import { SceneSettings } from 'src/types'
+import { AudioFolderSettings, SceneSettings } from 'src/types'
 
-export default class PlaylistModal extends Modal {
-  settings: SceneSettings
-  events: Events
+export default class SceneModal extends Modal {
   settingIndex: number
+  events: Events
+  currentScene: AudioScene
+  audioFolderSettings: AudioFolderSettings
 
-  constructor(app: App) {
+  constructor(app: App, audioFolderSettings: AudioFolderSettings) {
     super(app)
     this.events = new Events()
+    this.audioFolderSettings = audioFolderSettings
+    this.currentScene = new AudioScene(app, '', [])
   }
 
   onOpen(): void {
-    this.setTitle('Scene Settings')
+    this.setTitle(`${this.currentScene.name ? this.currentScene.name + ' ' : ''}Scene Settings`)
     this.events.trigger('scene-modal-open')
-    this.contentEl.empty()
-    this.display()
+    this.reload()
   }
 
   onClose(): void {
+    if (this.currentScene) this.currentScene.stop()
     this.events.trigger('scene-modal-close', {
-      settings: this.settings,
+      settings: this.currentScene.toJson(),
       index: this.settingIndex,
     })
   }
 
   loadSettings(settings: SceneSettings, index: number): void {
-    this.settings = settings
+    this.currentScene = new AudioScene(this.app, settings.name, settings.audioSettings)
     this.settingIndex = index
   }
 
@@ -46,44 +50,57 @@ export default class PlaylistModal extends Modal {
 
     new Setting(contentEl).setDesc(desc)
 
-    new Setting(contentEl).addButton(button => {
-      button
-        .setIcon('play')
-        .setTooltip('Test Scene')
-        .onClick(() => {
-          this.app.workspace.trigger('obsidian-ttrpg-audio-manager:play-scene', this.settings)
-        })
-      if (this.settings.audioSettings.length === 0) {
+    new Setting(contentEl).setName('Test Scene').addButton(button => {
+      button.setTooltip('Test Scene').onClick(() => {
+        Promise.resolve()
+          .then(async () => {
+            if (this.currentScene.state === 'playing') {
+              this.currentScene.stop()
+            } else {
+              await this.currentScene.play()
+            }
+
+            return Promise.resolve()
+          })
+          .then(() => this.reload())
+      })
+
+      if (this.currentScene.state !== 'playing') {
+        button.setIcon('play')
+      } else {
+        button.setIcon('square')
+      }
+      if (this.currentScene.audioFiles.length === 0) {
         button.setDisabled(true)
       }
     })
 
-    this.settings.audioSettings.forEach((audioSetting, index) => {
+    this.currentScene.audioFiles.forEach((audioFile, index) => {
       const setting = new Setting(contentEl)
         .addSearch(search => {
-          new AudioFileSuggester(this.app, search.inputEl)
+          new AudioFileSuggester(this.app, search.inputEl, this.audioFolderSettings)
           search
             .setPlaceholder('Enter Audio File Path')
-            .setValue(this.settings.audioSettings[index].audioPath)
+            .setValue(audioFile.path)
             .onChange(value => {
-              this.settings.audioSettings[index].audioPath = value
+              audioFile.path = value
             })
         })
         .addSlider(slider => {
           slider
             .setLimits(0, 100, 1)
             .setDynamicTooltip()
-            .setValue(audioSetting.volume)
+            .setValue(audioFile.volume * 100)
             .onChange(value => {
-              this.settings.audioSettings[index].volume = value
+              audioFile.volume = value / 100
             })
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
-              this.settings.audioSettings.splice(index, 1)
+              this.currentScene.removeAudioFileByIndex(index)
               this.reload()
             })
         })
@@ -93,10 +110,7 @@ export default class PlaylistModal extends Modal {
 
     new Setting(contentEl).addButton(button => {
       button.setButtonText('Add Audio File').onClick(() => {
-        this.settings.audioSettings.push({
-          audioPath: '',
-          volume: 50,
-        })
+        this.currentScene.addAudioFile('', 0)
         this.reload()
       })
     })

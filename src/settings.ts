@@ -14,15 +14,18 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
   constructor(app: App, plugin: TtrpgAudioManagerPlugin) {
     super(app, plugin)
     this.plugin = plugin
-    this.playlistSettingModal = new PlaylistModal(this.app)
-    this.scenesSettingModal = new SceneModal(this.app)
+    this.playlistSettingModal = new PlaylistModal(this.app, this.plugin.settings.audioFolders)
+    this.scenesSettingModal = new SceneModal(this.app, this.plugin.settings.audioFolders)
   }
 
-  display(): void {
+  reload(): void {
     const { containerEl } = this
 
     containerEl.empty()
+    this.display()
+  }
 
+  display(): void {
     this.addFolderGroupSettings()
     this.addPlaylistSettings()
     this.addSceneSettings()
@@ -32,58 +35,33 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
     new Setting(this.containerEl).setName('Audio Folders').setHeading()
 
     const desc = document.createDocumentFragment()
-    desc.append(
-      'Audio folders with their own settings. A Audio Folder settings apply ' +
-        'when playing an individual audio file from that folder. You can adjust ' +
-        'the volume and whether to loop the audio.',
-    )
+    desc.append('Audio folders which will be searched for audio files')
 
     new Setting(this.containerEl).setDesc(desc)
 
-    this.plugin.settings.audioFolders.forEach((audioFolderSetting, index) => {
+    this.plugin.settings.audioFolders.forEach((audioFolder, index) => {
       const setting = new Setting(this.containerEl)
         .addSearch(search => {
           new AudioFolderSuggester(this.app, search.inputEl)
           search
             .setPlaceholder('Enter folder path')
-            .setValue(audioFolderSetting.folderPath)
+            .setValue(audioFolder)
             .onChange(value => {
-              this.plugin.settings.audioFolders[index].folderPath = value
+              this.plugin.settings.audioFolders[index] = value
               this.plugin.saveSettings()
             })
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.plugin.settings.audioFolders.splice(index, 1)
               this.plugin.saveSettings()
-              this.display()
+              this.reload()
             })
         })
       setting.settingEl.addClass('setting-search-input-width-100')
-
-      new Setting(this.containerEl).setName('Volume').addSlider(slider => {
-        slider
-          .setLimits(0, 100, 1)
-          .setValue(audioFolderSetting.volume)
-          .setDynamicTooltip()
-          .onChange(value => {
-            this.plugin.settings.audioFolders[index].volume = value
-            this.plugin.saveSettings()
-          })
-      })
-
-      new Setting(this.containerEl).setName('Loop').addToggle(toggle => {
-        toggle
-          .setValue(audioFolderSetting.loop)
-          .setTooltip('Loop audio')
-          .onChange(value => {
-            this.plugin.settings.audioFolders[index].loop = value
-            this.plugin.saveSettings()
-          })
-      })
     })
 
     new Setting(this.containerEl).addButton(button => {
@@ -91,13 +69,9 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         .setButtonText('Add new audio folder')
         .setCta()
         .onClick(() => {
-          this.plugin.settings.audioFolders.push({
-            folderPath: '',
-            volume: 100,
-            loop: false,
-          })
+          this.plugin.settings.audioFolders.push('')
           this.plugin.saveSettings()
-          this.display()
+          this.reload()
         })
     })
   }
@@ -106,6 +80,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
     this.playlistSettingModal.events.on('playlist-modal-close', data => {
       this.plugin.settings.playlists[data.index] = data.settings
       this.plugin.saveSettings()
+      this.reload()
     })
 
     new Setting(this.containerEl).setName('Playlists').setHeading()
@@ -140,12 +115,12 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.plugin.settings.playlists.splice(index, 1)
               this.plugin.saveSettings()
-              this.display()
+              this.reload()
             })
         })
     })
@@ -157,12 +132,12 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         .onClick(() => {
           this.plugin.settings.playlists.push({
             name: '',
-            volume: 50,
+            volume: 0,
             loop: false,
             audioPaths: [],
           })
           this.plugin.saveSettings()
-          this.display()
+          this.reload()
         })
     })
   }
@@ -171,6 +146,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
     this.scenesSettingModal.events.on('scene-modal-close', data => {
       this.plugin.settings.scenes[data.index] = data.settings
       this.plugin.saveSettings()
+      this.reload()
     })
 
     new Setting(this.containerEl).setName('Scenes').setHeading()
@@ -198,7 +174,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         .addExtraButton(button => {
           button
             .setIcon('settings')
-            .setTooltip('Playlist Settings')
+            .setTooltip('Scene Settings')
             .onClick(() => {
               this.scenesSettingModal.loadSettings(scene, index)
               this.scenesSettingModal.open()
@@ -206,12 +182,12 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
         })
         .addExtraButton(button => {
           button
-            .setIcon('cross')
+            .setIcon('trash-2')
             .setTooltip('Remove')
             .onClick(() => {
               this.plugin.settings.scenes.splice(index, 1)
               this.plugin.saveSettings()
-              this.display()
+              this.reload()
             })
         })
     })
@@ -226,7 +202,7 @@ export class TtrpgAudioManagerSettingTab extends PluginSettingTab {
             audioSettings: [],
           })
           this.plugin.saveSettings()
-          this.display()
+          this.reload()
         })
     })
   }
