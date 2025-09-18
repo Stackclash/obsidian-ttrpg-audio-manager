@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-ttrpg-audio-manager",
 	"name": "TTRPG Audio Manager",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"minAppVersion": "1.6.7",
 	"description": "Obsidian plugin to play local audio files",
 	"author": "Richard Cox",
