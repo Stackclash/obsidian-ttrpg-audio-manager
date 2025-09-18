@@ -27,8 +27,8 @@ export const fileExists = (app: App, path: string): boolean => {
     }
 
     if (adapter instanceof FileSystemAdapter) {
-      const fullPath = getFullPath(app, path);
-      return fs.existsSync(fullPath) && fs.statSync(fullPath).isFile();
+      const fullPath = getFullPath(app, path)
+      return fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()
     }
 
     return false
