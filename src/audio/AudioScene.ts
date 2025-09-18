@@ -23,9 +23,7 @@ export default class AudioScene {
 
   async play(): Promise<void> {
     if (this.state !== 'playing') {
-      this.audioFiles.forEach(async audioFile => {
-        await audioFile.play()
-      })
+      await Promise.all(this.audioFiles.map(audioFile => audioFile.play()))
     }
   }
 
