@@ -70,7 +70,7 @@ export default class AudioFile {
   }
 
   private loadAudio(): void {
-    if (!fileExists(this.app, this.relativePath)) return
+    if (!fileExists(this.app, this.fullPath)) return
     const audioData = readFile(this.app, this.fullPath)
     if (!audioData) return
     const base64Data = audioData.toString('base64')
