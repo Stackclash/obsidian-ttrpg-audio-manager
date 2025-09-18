@@ -1,5 +1,5 @@
 import { App, FileSystemAdapter } from 'obsidian'
-import { join as pathJoin, isAbsolute } from 'path'
+import { posix, isAbsolute } from 'path'
 import fs from 'fs'
 
 export const getVaultPath = (app: App): string => {
@@ -14,7 +14,7 @@ export const getFullPath = (app: App, path: string): string => {
   if (isAbsolute(path)) {
     return path
   } else {
-    return pathJoin(getVaultPath(app), path)
+    return posix.join(getVaultPath(app), path)
   }
 }
 

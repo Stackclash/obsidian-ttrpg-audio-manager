@@ -46,7 +46,7 @@ describe('fileUtils', () => {
 
     it('joins vault path for relative path', () => {
       expect(fileUtils.getFullPath(app, 'relative/file.txt')).toBe(
-        '\\vault\\base\\path\\relative\\file.txt',
+        '/vault/base/path/relative/file.txt',
       )
     })
   })
@@ -123,20 +123,18 @@ describe('fileUtils', () => {
 
   describe('integration', () => {
     it('getVaultPath and getFullPath work together for relative path', () => {
-      expect(fileUtils.getFullPath(app, 'folder/file.mp3')).toBe(
-        '\\vault\\base\\path\\folder\\file.mp3',
-      )
+      expect(fileUtils.getFullPath(app, 'folder/file.mp3')).toBe('/vault/base/path/folder/file.mp3')
     })
 
     it('fileExists returns false for directory', () => {
       mockedFs.existsSync.mockReturnValue(true)
       mockedFs.statSync.mockReturnValue({ isFile: () => false } as any)
-      expect(fileUtils.fileExists(app, '\\vault\\base\\path\\dir')).toBe(false)
+      expect(fileUtils.fileExists(app, '/vault/base/path/dir')).toBe(false)
     })
 
     it('readFile returns null for directory', () => {
       jest.spyOn(fileUtils, 'fileExists').mockReturnValue(false)
-      expect(fileUtils.readFile(app, '\\vault\\base\\path\\dir')).toBeNull()
+      expect(fileUtils.readFile(app, '/vault/base/path/dir')).toBeNull()
     })
   })
 })
