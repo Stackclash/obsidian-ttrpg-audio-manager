@@ -36,11 +36,9 @@ export default class AudioScene {
   }
 
   stop(): void {
-    if (this.state === 'playing') {
-      this.audioFiles.forEach(audioFile => {
-        audioFile.stop()
-      })
-    }
+    this.audioFiles.forEach(audioFile => {
+      audioFile.stop()
+    })
   }
 
   addAudioFile(path: string, volume: number): void {
