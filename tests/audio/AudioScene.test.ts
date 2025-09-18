@@ -5,6 +5,7 @@ import { App } from 'obsidian'
 import { SceneAudioSettings } from '../../src/types'
 
 jest.mock('../../src/audio/AudioFile')
+const mockAudioFile = AudioFile as jest.MockedClass<typeof AudioFile>
 
 const mockApp = {} as App
 
@@ -17,7 +18,7 @@ describe('AudioScene', () => {
   let audioScene: AudioScene
 
   beforeEach(() => {
-    ;(AudioFile as jest.Mock).mockClear()
+    mockAudioFile.mockClear()
     audioScene = new AudioScene(mockApp, 'Test Scene', mockAudioSettings)
   })
 

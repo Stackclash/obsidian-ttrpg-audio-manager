@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import AudioPlaylist from '../../src/audio/AudioPlaylist'
-import AudioFile from '../../src/audio/AudioFile'
 import { App } from 'obsidian'
 import { PlaylistSettings } from '../../src/types'
 
-jest.mock('../../src/audio/AudioFile')
+jest.mock('../../src/audio/AudioFile', () => {
+  return jest.fn().mockImplementation((app: App, path: string) => ({
+    path,
+    play: jest.fn(),
+    pause: jest.fn(),
+    stop: jest.fn(),
+    volume: 0.5,
+    state: 'stopped',
+  }))
+})
 
 describe('AudioPlaylist', () => {
   let app: App
@@ -14,15 +22,6 @@ describe('AudioPlaylist', () => {
   beforeEach(() => {
     app = {} as App
     audioPaths = ['file1.mp3', 'file2.mp3']
-    ;(AudioFile as jest.Mock).mockImplementation((app: App, path: string, volume: number) => ({
-      app,
-      path,
-      volume,
-      state: 'stopped',
-      play: jest.fn().mockResolvedValue(undefined),
-      pause: jest.fn(),
-      stop: jest.fn(),
-    }))
     playlist = new AudioPlaylist(app, 'Test Playlist', audioPaths, 0.5, false)
   })
 

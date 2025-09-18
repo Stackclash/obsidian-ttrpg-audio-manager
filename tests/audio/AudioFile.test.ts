@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 import AudioFile from '../../src/audio/AudioFile'
 import { App } from 'obsidian'
-const { fileExists, getFullPath, readFile } = require('../../src/utils/fileUtils')
+import { fileExists, getFullPath, readFile } from '../../src/utils/fileUtils'
 
 // Mocks for fileUtils
 jest.mock('../../src/utils/fileUtils', () => ({
@@ -9,6 +8,10 @@ jest.mock('../../src/utils/fileUtils', () => ({
   getFullPath: jest.fn(),
   readFile: jest.fn(),
 }))
+
+const mockedFileExists = fileExists as jest.MockedFunction<typeof fileExists>
+const mockedReadFile = readFile as jest.MockedFunction<typeof readFile>
+const mockedGetFullPath = getFullPath as jest.MockedFunction<typeof getFullPath>
 
 Object.defineProperty(HTMLMediaElement.prototype, 'load', {
   configurable: true,
@@ -21,13 +24,13 @@ describe('AudioFile', () => {
   beforeEach(() => {
     app = {} as App
     jest.clearAllMocks()
-    getFullPath.mockImplementation((_app: App, path: string) => `/mocked/path/${path}`)
+    mockedGetFullPath.mockImplementation((_app: App, path: string) => `/mocked/path/${path}`)
   })
 
   describe('constructor', () => {
     it('should initialize with default values and load audio', () => {
-      fileExists.mockReturnValue(true)
-      readFile.mockReturnValue(Buffer.from('mockdata'))
+      mockedFileExists.mockReturnValue(true)
+      mockedReadFile.mockReturnValue(Buffer.from('mockdata'))
       const audioFile = new AudioFile(app, 'test.mp3')
       expect(audioFile.path).toBe('test.mp3')
       expect(audioFile.volume).toBe(0.5)
@@ -37,7 +40,7 @@ describe('AudioFile', () => {
     })
 
     it('should not set src if file does not exist', () => {
-      fileExists.mockReturnValue(false)
+      mockedFileExists.mockReturnValue(false)
       const audioFile = new AudioFile(app, 'missing.mp3')
       expect(audioFile.audioEl.src).toBe('')
     })
@@ -52,8 +55,8 @@ describe('AudioFile', () => {
 
   describe('path', () => {
     it('should update path and reload audio', () => {
-      fileExists.mockReturnValue(true)
-      readFile.mockReturnValue(Buffer.from('mockdata'))
+      mockedFileExists.mockReturnValue(true)
+      mockedReadFile.mockReturnValue(Buffer.from('mockdata'))
       const audioFile = new AudioFile(app, 'test.mp3')
       audioFile.path = 'new.mp3'
       expect(audioFile.path).toBe('new.mp3')
@@ -111,14 +114,14 @@ describe('AudioFile', () => {
 
   describe('loadAudio', () => {
     it('should not set src if file does not exist', () => {
-      fileExists.mockReturnValue(false)
+      mockedFileExists.mockReturnValue(false)
       const audioFile = new AudioFile(app, 'missing.mp3')
       expect(audioFile.audioEl.src).toBe('')
     })
 
     it('should not set src if readFile returns null', () => {
-      fileExists.mockReturnValue(true)
-      readFile.mockReturnValue(null)
+      mockedFileExists.mockReturnValue(true)
+      mockedReadFile.mockReturnValue(null)
       const audioFile = new AudioFile(app, 'test.mp3')
       expect(audioFile.audioEl.src).toBe('')
     })

@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { App, FileSystemAdapter } from 'obsidian'
+// Create a mock FileSystemAdapter class for instanceof checks
+class MockFileSystemAdapter {
+  getBasePath = jest.fn(() => '/vault/base/path')
+}
+
+jest.mock('obsidian', () => ({
+  FileSystemAdapter: MockFileSystemAdapter,
+}))
+
+import { App } from 'obsidian'
 import * as fileUtils from '../../src/utils/fileUtils'
 import fs from 'fs'
 
@@ -8,20 +17,14 @@ const mockedFs = fs as jest.Mocked<typeof fs>
 
 describe('fileUtils', () => {
   let app: App
-  let adapter: FileSystemAdapter
 
   beforeEach(() => {
-    adapter = {
-      getBasePath: jest.fn(() => '/vault/base/path'),
-    } as unknown as FileSystemAdapter
-
+    jest.clearAllMocks()
     app = {
       vault: {
-        adapter,
+        adapter: new MockFileSystemAdapter(),
       },
     } as unknown as App
-
-    jest.clearAllMocks()
   })
 
   describe('getVaultPath', () => {
@@ -43,7 +46,7 @@ describe('fileUtils', () => {
 
     it('joins vault path for relative path', () => {
       expect(fileUtils.getFullPath(app, 'relative/file.txt')).toBe(
-        '/vault/base/path/relative/file.txt',
+        '\\vault\\base\\path\\relative\\file.txt',
       )
     })
   })
@@ -73,6 +76,14 @@ describe('fileUtils', () => {
       })
       expect(fileUtils.fileExists(app, 'error.txt')).toBe(false)
     })
+
+    it('returns false if statSync throws error', () => {
+      mockedFs.existsSync.mockReturnValue(true)
+      mockedFs.statSync.mockImplementation(() => {
+        throw new Error('fail')
+      })
+      expect(fileUtils.fileExists(app, 'error2.txt')).toBe(false)
+    })
   })
 
   describe('readFile', () => {
@@ -99,6 +110,33 @@ describe('fileUtils', () => {
         throw new Error('fail')
       })
       expect(fileUtils.readFile(app, 'file.txt')).toBeNull()
+    })
+
+    it('returns null if fileExists throws error', () => {
+      const fileExistsSpy = jest.spyOn(fileUtils, 'fileExists').mockImplementation(() => {
+        throw new Error('fail')
+      })
+      expect(fileUtils.readFile(app, 'file.txt')).toBeNull()
+      fileExistsSpy.mockRestore()
+    })
+  })
+
+  describe('integration', () => {
+    it('getVaultPath and getFullPath work together for relative path', () => {
+      expect(fileUtils.getFullPath(app, 'folder/file.mp3')).toBe(
+        '\\vault\\base\\path\\folder\\file.mp3',
+      )
+    })
+
+    it('fileExists returns false for directory', () => {
+      mockedFs.existsSync.mockReturnValue(true)
+      mockedFs.statSync.mockReturnValue({ isFile: () => false } as any)
+      expect(fileUtils.fileExists(app, '\\vault\\base\\path\\dir')).toBe(false)
+    })
+
+    it('readFile returns null for directory', () => {
+      jest.spyOn(fileUtils, 'fileExists').mockReturnValue(false)
+      expect(fileUtils.readFile(app, '\\vault\\base\\path\\dir')).toBeNull()
     })
   })
 })
