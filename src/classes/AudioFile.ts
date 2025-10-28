@@ -9,6 +9,7 @@ export default class AudioFile {
   private fullPath: string = ''
   _state: AudioState = 'stopped'
   audioEl: HTMLAudioElement
+  onEnded: (() => void) | null = null
 
   constructor(app: App, audioPath: string, volume: number = 0.5, loop: boolean = false) {
     const audioElement = new Audio()
@@ -19,6 +20,11 @@ export default class AudioFile {
     this.audioEl = audioElement
     this.relativePath = audioPath
     this.fullPath = getFullPath(this.app, audioPath)
+
+    this.audioEl.onended = () => {
+      this._state = 'stopped'
+      if (this.onEnded) this.onEnded()
+    }
 
     this.loadAudio()
   }

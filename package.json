@@ -42,5 +42,8 @@
       "eslint --config eslint.config.mjs --fix",
       "npm test --bail --findRelatedTests --passWithNoTests"
     ]
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
   }
 }

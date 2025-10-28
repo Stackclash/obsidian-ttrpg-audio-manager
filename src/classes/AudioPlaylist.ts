@@ -16,6 +16,26 @@ export default class AudioPlaylist {
     audioPaths.forEach(path => {
       this.audioFiles.push(new AudioFile(app, path, volume))
     })
+
+    this.attachEndListeners()
+  }
+
+  private attachEndListeners() {
+    this.audioFiles.forEach((audioFile, idx) => {
+      audioFile.onEnded = () => this.handleTrackEnd(idx)
+    })
+  }
+
+  private handleTrackEnd(idx: number) {
+    if (idx < this.audioFiles.length - 1) {
+      this.audioFiles[idx + 1].play()
+    } else {
+      if (this.loop) {
+        this.audioFiles[0].play()
+      } else {
+        this.stop()
+      }
+    }
   }
 
   get state(): string {

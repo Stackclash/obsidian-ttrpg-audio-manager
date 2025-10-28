@@ -8,7 +8,12 @@ export default class TtrpgAudioManagerPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings()
+
     this.addSettingTab(new TtrpgAudioManagerSettingTab(this.app, this))
+
+    this.registerMarkdownCodeBlockProcessor('ttrpg-audio', (source, el) => {
+      el.createEl('span', { text: `Audio command: ${source}` })
+    })
   }
 
   onunload() {}
